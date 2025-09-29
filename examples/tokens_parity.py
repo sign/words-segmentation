@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from transformers import GPT2TokenizerFast
+
 from words_segmentation.tokenizer import WordsSegmentationTokenizer
 
 tokenizer = GPT2TokenizerFast.from_pretrained('Xenova/gpt-4')
