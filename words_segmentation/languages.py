@@ -15,6 +15,7 @@ from utf8_tokenizer.control import CONTROl_TOKENS_PATTERN
 
 from words_segmentation.chinese import segment_chinese
 from words_segmentation.japanese import segment_japanese
+from words_segmentation.signwriting import segment_signwriting
 
 # Three classes of tokens inside the Default branch:
 # 1) Control tokens (always atomic)
@@ -39,6 +40,10 @@ class LanguageSpec(TypedDict):
 
 
 LANGUAGE_SPECS: dict[str, LanguageSpec] = {
+    "SignWriting": {
+        "scripts": ("SignWriting",),
+        "callback": segment_signwriting,
+    },
     "Chinese": {
         "scripts": ("Han",),
         "callback": segment_chinese,
