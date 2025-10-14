@@ -13,7 +13,7 @@ class WordsSegmentationTokenizer(PreTrainedTokenizer):
     extending PreTrainedTokenizer for basic Hugging Face ecosystem support.
     """
 
-    def __init__(self, max_bytes: int = math.inf,  **kwargs):
+    def __init__(self, max_bytes: int = math.inf, **kwargs):
         super().__init__(**kwargs)
         self.max_bytes = max_bytes
 
@@ -52,8 +52,9 @@ class WordsSegmentationTokenizer(PreTrainedTokenizer):
     def save_vocabulary(self, save_directory: str, filename_prefix: Optional[str] = None):
         return ()
 
+
 AutoTokenizer.register(WordsSegmentationTokenizer, slow_tokenizer_class=WordsSegmentationTokenizer)
 
-tokenizer = WordsSegmentationTokenizer()
-
-print(tokenizer.tokenize("hello world! 我爱北京天安门 👩‍👩‍👧‍👦", max_bytes=16))
+if __name__ == "__main__":
+    tokenizer = WordsSegmentationTokenizer()
+    print(tokenizer.tokenize("hello world! 我爱北京天安门 👩‍👩‍👧‍👦", max_bytes=16))
