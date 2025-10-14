@@ -12,7 +12,7 @@ dependencies = [
     "utf8-tokenizer",
     "fugashi[unidic-lite]", # For Japanese word segmentation
     "jieba", # For Chinese word segmentation
-    "signwriting @ git+https://github.com/sign-language-processing/signwriting", # For SignWriting segmentation
+    "signwriting", # For SignWriting segmentation
 ]
 
 [project.optional-dependencies]
