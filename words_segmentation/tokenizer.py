@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 from transformers import AutoTokenizer, PreTrainedTokenizer
 from transformers.tokenization_utils_base import TextInput
@@ -49,7 +48,7 @@ class WordsSegmentationTokenizer(PreTrainedTokenizer):
     def build_inputs_with_special_tokens(self, **unused_kwargs):
         raise Exception("WordsSegmentationTokenizer does not use special tokens")
 
-    def save_vocabulary(self, save_directory: str, filename_prefix: Optional[str] = None):
+    def save_vocabulary(self, save_directory: str, filename_prefix: str | None = None):
         return ()
 
 

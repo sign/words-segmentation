@@ -5,10 +5,10 @@ Script-aware segmentation with per-language callbacks.
 - Each non-default segment is passed to its language-specific callback.
 """
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import cache
 from itertools import chain
-from typing import Any, Callable, TypedDict
+from typing import Any, TypedDict
 
 import regex
 from utf8_tokenizer.control import CONTROl_TOKENS_PATTERN
