@@ -51,6 +51,9 @@ class WordsSegmentationTokenizer(PreTrainedTokenizer):
     def save_vocabulary(self, save_directory: str, filename_prefix: str | None = None):
         return ()
 
+    def to_dict(self):
+        return {"max_bytes": self.max_bytes}
+
 
 AutoTokenizer.register(WordsSegmentationTokenizer, slow_tokenizer_class=WordsSegmentationTokenizer)
 
