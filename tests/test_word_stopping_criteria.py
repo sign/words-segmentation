@@ -14,6 +14,10 @@ class MockTokenizer:
         # Simple mapping: use chr() for decoding, allow control characters
         return ''.join(chr(tid % 128) for tid in token_ids)
 
+    def batch_decode(self, token_ids_list):
+        """Batch decode that converts a list of token IDs to a list of strings."""
+        return [self.decode(token_ids) for token_ids in token_ids_list]
+
 
 def test_word_stopping_criteria_basic():
     """Test WordStoppingCriteria with basic functionality on CPU."""
@@ -104,6 +108,43 @@ def test_word_stopping_criteria_control_token():
     assert result.dtype == torch.bool
     assert result.shape == (1,)
     assert result[0].item() is True  # Control tokens are always complete
+
+
+def test_word_stopping_criteria_utf8_tokenizer():
+    """Test WordStoppingCriteria with UTF8Tokenizer to verify batch_decode compatibility."""
+    from utf8_tokenizer.tokenizer import UTF8Tokenizer
+
+    tokenizer = UTF8Tokenizer()
+    criteria = WordStoppingCriteria(tokenizer)
+
+    # Create test cases with UTF8Tokenizer's encoded tokens
+    # UTF8Tokenizer adds SOT (0x02) and EOT (0x03) control tokens
+    # We test that batch_decode produces the same results as individual decode calls
+
+    # Encode some test strings
+    test_texts = ["hello world ", "test"]
+    test_ids = [tokenizer.encode(text) for text in test_texts]
+
+    # Pad to same length
+    max_len = max(len(ids) for ids in test_ids)
+    padded_ids = [ids + [0] * (max_len - len(ids)) for ids in test_ids]
+
+    input_ids = torch.tensor(padded_ids)
+    scores = torch.zeros((len(padded_ids), 100))
+
+    # Get results using batch_decode (new implementation)
+    result = criteria(input_ids, scores)
+
+    # Verify by checking batch_decode produces same results as individual decode
+    batch_decoded = tokenizer.batch_decode(input_ids.tolist())
+    individual_decoded = [tokenizer.decode(ids) for ids in input_ids]
+
+    assert batch_decoded == individual_decoded, "batch_decode should produce same results as individual decode calls"
+
+    # Verify result properties
+    assert isinstance(result, torch.Tensor)
+    assert result.dtype == torch.bool
+    assert result.shape == (2,)
 
 
 if __name__ == "__main__":
