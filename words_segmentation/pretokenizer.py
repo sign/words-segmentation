@@ -79,8 +79,7 @@ class WordStoppingCriteria(StoppingCriteria):
 
     @add_start_docstrings(STOPPING_CRITERIA_INPUTS_DOCSTRING)
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> torch.BoolTensor:
-        device = input_ids.device
         texts = [self.tokenizer.decode(ids) for ids in input_ids]
         is_done = [is_word_complete(text) for text in texts]
-        return torch.tensor(is_done, dtype=torch.bool, device=device)
+        return torch.tensor(is_done, dtype=torch.bool, device=input_ids.device)
 
