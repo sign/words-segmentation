@@ -5,6 +5,7 @@ Script-aware segmentation with per-language callbacks.
 - Each non-default segment is passed to its language-specific callback.
 """
 
+import os
 from collections.abc import Callable, Iterable
 from functools import cache
 from itertools import chain
@@ -57,6 +58,23 @@ LANGUAGE_SPECS: dict[str, LanguageSpec] = {
         "callback": text_to_unbound_words,
     },
 }
+
+# Parse LANGUAGES_NO_SPLIT environment variable and remove specified languages
+_languages_no_split = os.environ.get("LANGUAGES_NO_SPLIT", "").strip()
+if _languages_no_split:
+    _languages_to_remove = [lang.strip() for lang in _languages_no_split.split(",") if lang.strip()]
+    for _lang in _languages_to_remove:
+        if _lang not in LANGUAGE_SPECS:
+            available = ", ".join(LANGUAGE_SPECS.keys())
+            msg = (
+                f"Language '{_lang}' specified in LANGUAGES_NO_SPLIT does not exist in LANGUAGE_SPECS. "
+                f"Available languages: {available}"
+            )
+            raise ValueError(msg)
+        if _lang == "Default":
+            msg = "Cannot remove 'Default' language from LANGUAGE_SPECS"
+            raise ValueError(msg)
+        del LANGUAGE_SPECS[_lang]
 
 
 def _union_scx(scripts: tuple[str, ...]) -> str:

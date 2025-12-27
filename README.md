@@ -48,6 +48,18 @@ tokens = pretokenizer.tokenize("hello world! 我爱北京天安门 👩‍👩�
 # ['hello ', 'world! ', '我', '爱', '北京', '天安门', ' ', '👩‍👩‍👧‍👦‍']
 ```
 
+### Disabling Language-Specific Segmentation
+
+You can disable language-specific segmentation for certain languages 
+using the `LANGUAGES_NO_SPLIT` environment variable.
+This is useful when you want specific languages to fall back to the default 
+word-boundary segmentation instead of using their specialized tokenizers.
+
+```bash
+export LANGUAGES_NO_SPLIT="Chinese,Japanese"
+python your_script.py
+```
+
 ## [Writing systems without word boundaries](https://en.wikipedia.org/wiki/Category:Writing_systems_without_word_boundaries)
 
 Perhaps there will come a day when we could have a universal pretokenizer that works for all languages.
