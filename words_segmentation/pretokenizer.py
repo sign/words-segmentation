@@ -1,4 +1,3 @@
-import math
 import re
 from collections.abc import Iterable
 from itertools import chain
@@ -22,15 +21,35 @@ def words_to_text(words: Iterable[str]) -> str:
     return ''.join(words)
 
 
-def text_to_words(text: str, max_bytes: int = math.inf) -> list[str]:
+def text_to_words(text: str, max_bytes: int = None, max_characters: int = None) -> list[str]:
     words = chain.from_iterable(segment_text(text))
 
-    if max_bytes == math.inf:
+    # max_bytes and max_characters are mutually exclusive
+    if max_bytes is not None and max_characters is not None:
+        raise ValueError("max_bytes and max_characters are mutually exclusive")
+
+    if max_bytes is None and max_characters is None:
         return list(words)
 
-    chunks = (utf8_chunks_grapheme_safe(word, max_bytes=max_bytes) for word in words)
+    if max_characters is not None:
+        chunks = (character_chunks(word, max_characters=max_characters) for word in words)
+    else:
+        chunks = (utf8_chunks_grapheme_safe(word, max_bytes=max_bytes) for word in words)
     return list(chain.from_iterable(chunks))
 
+def character_chunks(text: str, max_characters: int) -> Iterable[str]:
+    """
+    Split a string into chunks of at most max_characters characters.
+    """
+    if len(text) <= max_characters:
+        yield text
+        return
+
+    start = 0
+    while start < len(text):
+        end = start + max_characters
+        yield text[start:end]
+        start = end
 
 def utf8_chunks_grapheme_safe(text: str, max_bytes: int = 16) -> Iterable[str]:
     """
@@ -79,6 +98,9 @@ class WordStoppingCriteria(StoppingCriteria):
 
     @add_start_docstrings(STOPPING_CRITERIA_INPUTS_DOCSTRING)
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> torch.BoolTensor:
+        # TODO: we can check directly the input_ids without decoding, for better performance
+        #       specifically, if the last non-padding token is a control token
+        #       or if it is a space, preceded by non-space token, then the word is complete
         texts = self.tokenizer.batch_decode(input_ids.tolist())
         is_done = [is_word_complete(text) for text in texts]
         return torch.tensor(is_done, dtype=torch.bool, device=input_ids.device)

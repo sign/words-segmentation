@@ -1,6 +1,7 @@
 import pytest
 
 from words_segmentation.pretokenizer import (
+    character_chunks,
     is_word_complete,
     text_to_words,
     utf8_chunks_grapheme_safe,
@@ -57,6 +58,129 @@ def test_utf8_chunks_mixed_content():
     text = "hello עמית 👋"
     chunks = list(utf8_chunks_grapheme_safe(text, max_bytes=10))
     assert "".join(chunks) == text
+
+
+def test_character_chunks_english():
+    """Test character_chunks with English text."""
+    text = "hello world"
+    chunks = list(character_chunks(text, max_characters=5))
+    assert chunks == ["hello", " worl", "d"]
+    assert len(chunks) == 3
+    assert all(len(chunk) <= 5 for chunk in chunks)
+
+
+def test_character_chunks_hebrew():
+    """Test character_chunks with Hebrew text."""
+    text = "עמית מוריוסף"
+    chunks = list(character_chunks(text, max_characters=4))
+    assert chunks == ['עמית', ' מור', 'יוסף']
+    assert "".join(chunks) == text
+    assert len(chunks) == 3
+    assert all(len(chunk) <= 4 for chunk in chunks)
+
+
+def test_character_chunks_emoji():
+    """Test character_chunks with basic emoji."""
+    text = "hello 😀 world"
+    chunks = list(character_chunks(text, max_characters=8))
+    assert chunks == ['hello 😀 ', 'world']
+    assert "".join(chunks) == text
+    assert len(chunks) == 2
+    assert all(len(chunk) <= 8 for chunk in chunks)
+
+
+def test_character_chunks_complex_emoji():
+    """Test character_chunks with complex emoji cluster."""
+    # Note: This emoji cluster is counted as 7 characters by Python's len()
+    # (individual code points), not as 1 grapheme cluster
+    text = "👩‍👩‍👧‍👦"
+    assert len(text) == 7
+    chunks = list(character_chunks(text, max_characters=5))
+    # The emoji gets split because Python counts code points, not graphemes
+    assert len(chunks) == 2
+    assert "".join(chunks) == text
+
+
+def test_character_chunks_single_character():
+    """Test special case of single character."""
+    text = "a"
+    chunks = list(character_chunks(text, max_characters=10))
+    assert chunks == ["a"]
+
+
+def test_character_chunks_exact_boundary():
+    """Test when text length exactly matches max_characters."""
+    text = "hello"
+    chunks = list(character_chunks(text, max_characters=5))
+    assert chunks == ["hello"]
+    assert len(chunks) == 1
+
+
+def test_character_chunks_mixed_content():
+    """Test with mixed English, Hebrew, and emoji."""
+    text = "hello עמית 👋"
+    chunks = list(character_chunks(text, max_characters=6))
+    assert "".join(chunks) == text
+    # Should be: "hello ", "עמית 👋"
+    assert len(chunks) == 2
+
+
+def test_character_chunks_empty_string():
+    """Test character_chunks with empty string."""
+    text = ""
+    chunks = list(character_chunks(text, max_characters=10))
+    assert chunks == [""]
+
+
+def test_text_to_words_with_max_characters():
+    """Test text_to_words with max_characters parameter."""
+    text = "hello world testing"
+    words = text_to_words(text, max_characters=5)
+    assert "".join(words) == text
+    assert all(len(word) <= 5 for word in words)
+    # Should split: "hello", " ", "world", " ", "testi", "ng"
+    assert words == ["hello", " ", "world", " ", "testi", "ng"]
+
+
+def test_text_to_words_characters_vs_bytes():
+    """Test that max_characters uses character count, not byte count."""
+    # Hebrew characters are 2 bytes each in UTF-8
+    text = "עמית מוריוסף"
+
+    # With max_characters=4, should split by character count
+    words_chars = text_to_words(text, max_characters=4)
+    assert "".join(words_chars) == text
+    assert all(len(word) <= 4 for word in words_chars)
+    assert words_chars == ['עמית', ' ', 'מורי', 'וסף']
+
+    # With max_bytes=6 (3 Hebrew chars), should split by byte count
+    # This produces different results than max_characters=4
+    words_bytes = text_to_words(text, max_bytes=6)
+    assert "".join(words_bytes) == text
+    assert words_bytes == ['עמי', 'ת ', 'מור', 'יוס', 'ף']
+    assert all(len(word.encode('utf-8')) <= 6 for word in words_bytes)
+
+
+def test_text_to_words_json_with_max_characters():
+    """Test text_to_words with JSON string and max_characters."""
+    json_text = '{"name": "test", "value": 123}'
+    words = text_to_words(json_text, max_characters=10)
+    assert "".join(words) == json_text
+    assert all(len(word) <= 10 for word in words)
+
+
+def test_text_to_words_emoji_with_max_characters():
+    """Test text_to_words with emoji and max_characters."""
+    text = "hello 😀 world 🌟"
+    words = text_to_words(text, max_characters=8)
+    assert "".join(words) == text
+    assert all(len(word) <= 8 for word in words)
+
+
+def test_text_to_words_mutually_exclusive():
+    """Test that max_bytes and max_characters are mutually exclusive."""
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        text_to_words("hello world", max_bytes=10, max_characters=5)
 
 
 def test_text_to_words_json():
