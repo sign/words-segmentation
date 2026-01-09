@@ -6,6 +6,7 @@ Script-aware segmentation with per-language callbacks.
 """
 
 import os
+import re
 from collections.abc import Callable, Iterable
 from functools import cache
 from itertools import chain
@@ -27,7 +28,7 @@ _TOKEN_PATTERN = (
     rf"|[^\s{CONTROl_TOKENS_PATTERN}]+\s?"  # 2) Word (+ optional trailing space)
     r"|\s+"  # 3) Whitespace runs
 )
-_COMPILED_TOKEN_PATTERN = regex.compile(_TOKEN_PATTERN)
+_COMPILED_TOKEN_PATTERN = re.compile(_TOKEN_PATTERN)
 
 
 def text_to_unbound_words(text: str) -> list[str]:
@@ -84,6 +85,18 @@ def _union_scx(scripts: tuple[str, ...]) -> str:
 
 
 @cache
+def _build_script_check_pattern() -> regex.Pattern | None:
+    """
+    Build a simple pattern to check if text contains any special scripts.
+    Returns None if no special scripts are configured.
+    """
+    all_scripts = tuple(sorted({s for spec in LANGUAGE_SPECS.values() for s in spec.get("scripts", ())}))
+    if not all_scripts:
+        return None
+    return regex.compile(_union_scx(all_scripts))
+
+
+@cache
 def build_regex_from_languages() -> regex.Pattern:
     """
     Compile the master regex with named groups for each language plus Default.
@@ -113,6 +126,15 @@ def segment_text(text: str) -> Iterable[Any]:
     - Non-Default groups call their language callback.
     - Default group calls its callback if present in LANGUAGE_SPECS.
     """
+    if text.isascii():
+        yield text_to_unbound_words(text)
+        return
+
+    script_check = _build_script_check_pattern()
+    if script_check is not None and not script_check.search(text):
+        yield text_to_unbound_words(text)
+        return
+
     pat = build_regex_from_languages()
     for m in pat.finditer(text):
         group_name = m.lastgroup
