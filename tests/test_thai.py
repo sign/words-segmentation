@@ -1,5 +1,6 @@
 import pytest
 
+from words_segmentation.languages import segment_text
 from words_segmentation.thai import has_thai, segment_thai
 
 
@@ -64,6 +65,12 @@ def test_segment_thai_compound_words():
     result = segment_thai("การประมวลผลภาษาธรรมชาติ")
     assert "".join(result) == "การประมวลผลภาษาธรรมชาติ"
     assert len(result) > 1
+
+
+def test_segment_text_dispatches_thai():
+    """Test that Thai text is routed to segment_thai via LANGUAGE_SPECS."""
+    result = list(segment_text("ผมรักเมืองไทย"))
+    assert result == [["ผม", "รัก", "เมือง", "ไทย"]]
 
 
 if __name__ == "__main__":
