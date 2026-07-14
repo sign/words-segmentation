@@ -70,6 +70,8 @@ We implement custom fallback pretoknizers for the following writing systems:
   using [jieba](https://github.com/fxsjy/jieba)
 - [x] [Japanese writing system](https://en.wikipedia.org/wiki/Japanese_writing_system) -
   using [fugashi](https://github.com/polm/fugashi)
+- [x] [Thai script](https://en.wikipedia.org/wiki/Thai_script) -
+  using [PyThaiNLP](https://github.com/PyThaiNLP/pythainlp)
 - [ ] [Balinese script](https://en.wikipedia.org/wiki/Balinese_script)
 - [ ] [Burmese alphabet](https://en.wikipedia.org/wiki/Burmese_alphabet)
 - [ ] [Chữ Hán](https://en.wikipedia.org/wiki/Ch%E1%BB%AF_H%C3%A1n)
@@ -84,7 +86,6 @@ We implement custom fallback pretoknizers for the following writing systems:
 - [ ] [Scriptio continua](https://en.wikipedia.org/wiki/Scriptio_continua)
 - [ ] [S'gaw Karen alphabet](https://en.wikipedia.org/wiki/S%27gaw_Karen_alphabet)
 - [ ] [Tai Tham script](https://en.wikipedia.org/wiki/Tai_Tham_script)
-- [ ] [Thai script](https://en.wikipedia.org/wiki/Thai_script)
 - [ ] [Tibetan script](https://en.wikipedia.org/wiki/Tibetan_script)
 - [ ] [Vietnamese alphabet](https://en.wikipedia.org/wiki/Vietnamese_alphabet)
 - [ ] [Western Pwo alphabet](https://en.wikipedia.org/wiki/Western_Pwo_alphabet)
