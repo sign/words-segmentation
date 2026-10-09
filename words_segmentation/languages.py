@@ -83,9 +83,15 @@ if _languages_no_split:
         del LANGUAGE_SPECS[_lang]
 
 
+# Characters of a script outside its Unicode Script_Extensions: Unicode's SignWriting script is the Sutton SignWriting
+# block (U+1D800-U+1DAAF, the sign prefix, box and coordinates), while SWU symbols are encoded in plane 4.
+_SCRIPT_EXTRA_CHARACTERS = {"SignWriting": f"[{chr(0x40001)}-{chr(0x4F480)}]"}
+
+
 def _union_scx(scripts: tuple[str, ...]) -> str:
     """Create a non-capturing alternation for a set of Script_Extensions."""
     parts = [fr"\p{{scx={s}}}" for s in scripts]
+    parts += [_SCRIPT_EXTRA_CHARACTERS[s] for s in scripts if s in _SCRIPT_EXTRA_CHARACTERS]
     return "(?:" + "|".join(parts) + ")"
 
 
