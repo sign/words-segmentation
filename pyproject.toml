@@ -9,7 +9,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "transformers[torch]",
-    "utf8-tokenizer",
+    "utf8-tokenizer>=0.8.5",  # CONTROL_TOKENS_PATTERN
     "fugashi[unidic-lite]", # For Japanese word segmentation
     "jieba", # For Chinese word segmentation
     "pythainlp", # For Thai word segmentation

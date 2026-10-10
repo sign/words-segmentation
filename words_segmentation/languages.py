@@ -13,7 +13,7 @@ from itertools import chain
 from typing import Any, TypedDict
 
 import regex
-from utf8_tokenizer.control import CONTROl_TOKENS_PATTERN
+from utf8_tokenizer.control import CONTROL_TOKENS_PATTERN
 
 from words_segmentation.chinese import segment_chinese
 from words_segmentation.japanese import segment_japanese
@@ -25,8 +25,8 @@ from words_segmentation.thai import segment_thai
 # 2) "Words" = runs of non-space, non-control + optional trailing single space
 # 3) Whitespace runs
 _TOKEN_PATTERN = (
-    rf"[{CONTROl_TOKENS_PATTERN}]"  # 1) Control tokens
-    rf"|[^\s{CONTROl_TOKENS_PATTERN}]+\s?"  # 2) Word (+ optional trailing space)
+    rf"[{CONTROL_TOKENS_PATTERN}]"  # 1) Control tokens
+    rf"|[^\s{CONTROL_TOKENS_PATTERN}]+\s?"  # 2) Word (+ optional trailing space)
     r"|\s+"  # 3) Whitespace runs
 )
 _COMPILED_TOKEN_PATTERN = re.compile(_TOKEN_PATTERN)

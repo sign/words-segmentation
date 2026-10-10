@@ -6,14 +6,14 @@ import regex
 import torch
 from transformers import PreTrainedTokenizer, StoppingCriteria, add_start_docstrings
 from transformers.generation.stopping_criteria import STOPPING_CRITERIA_INPUTS_DOCSTRING
-from utf8_tokenizer.control import CONTROl_TOKENS_PATTERN
+from utf8_tokenizer.control import CONTROL_TOKENS_PATTERN
 
 from words_segmentation.languages import segment_text
 
 _COMPILED_GRAPHEME_PATTERN = regex.compile(r"\X")
 _COMPLETE_WORD_PATTERNS = [
-    rf"[{CONTROl_TOKENS_PATTERN}]",  # Control tokens are always complete
-    rf"[^\s{CONTROl_TOKENS_PATTERN}]+\s",  # Words with trailing space are complete
+    rf"[{CONTROL_TOKENS_PATTERN}]",  # Control tokens are always complete
+    rf"[^\s{CONTROL_TOKENS_PATTERN}]+\s",  # Words with trailing space are complete
 ]
 
 
